@@ -18,7 +18,7 @@ Add these callbacks to your local tracks prior to publishing them
         localTracks.videoTrack.on("transceiver-created", AgoraE2EUtils.setupSender);      
         localTracks.audioTrack.on("transceiver-created", AgoraE2EUtils.setupSender);         
 
-#### Decrypt outbound streams 
+#### Decrypt inbound streams 
 Add these callbacks to remote tracks before playing them      
 
         user.videoTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);     
