@@ -12,6 +12,18 @@ Set a password before joining the channel which will be used to encrypt and decr
 
         AgoraE2EUtils.setEncryptionKey("**F$$!~~~zzPLPLP");                       
 
+#### Encrypt outbound streams 
+Add these callbacks to your local tracks prior to publishing them     
+
+        localTracks.videoTrack.on("transceiver-created", AgoraE2EUtils.setupSender);      
+        localTracks.audioTrack.on("transceiver-created", AgoraE2EUtils.setupSender);         
+
+#### Decrypt outbound streams 
+Add these callbacks to remote tracks before playing them      
+
+        user.videoTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);     
+        user.audioTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);     
+
 #### Send some custom data  
 This will be appended to next outbound video frame and received by all subscribers
 
