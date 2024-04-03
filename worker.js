@@ -55,7 +55,7 @@ function base64Encode(u8) {
 }
 
 async function encodeFunction(encodedFrame, controller) {
-
+    let v=encodedFrame.data.byteLength;
     if (enableCustomData && encodedFrame instanceof RTCEncodedVideoFrame) {
         const watermark = textEncoder.encode(watermarkText);
         const frame = encodedFrame.data;
@@ -75,6 +75,7 @@ async function encodeFunction(encodedFrame, controller) {
         watermarkText=""; // clear it as now sent
         encodedFrame.data = data.buffer;
     }
+    
     const originView = new Uint8Array(encodedFrame.data);
     const payload = originView.subarray(unencrypted_header_length, originView.length);
     const hashKey = await grindKey(encryptionPassword, grindKey_difficulty);
@@ -102,6 +103,10 @@ async function encodeFunction(encodedFrame, controller) {
     encryptedView.set(initialization_vector, unencrypted_header_length);
     encryptedView.set(new Uint8Array(ciphertext), unencrypted_header_length + initialization_vector_length);
     encodedFrame.data = encryptedView.buffer;
+    let y=encodedFrame.data.byteLength;
+  //  if (!(encodedFrame instanceof RTCEncodedVideoFrame)) {
+        console.warn(v,y,y-v,"isVideo",(encodedFrame instanceof RTCEncodedVideoFrame));
+//    }
     controller.enqueue(encodedFrame);
 }
 

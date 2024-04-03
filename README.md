@@ -1,6 +1,6 @@
 
 ## AgoraE2EUtils.js
-This javascript module provides some useful utilities to work with the AgoraRTC 4.18 SDK onwards for providing true end-to-end encryption and appending custom data to video frames.
+This javascript module provides some useful utilities to work with the AgoraRTC 4.20 SDK onwards for providing true end-to-end encryption and appending custom data to video frames.
 
 
 #### Include the javascript:
@@ -15,14 +15,28 @@ Set a password before joining the channel which will be used to encrypt and decr
 #### Encrypt outbound streams 
 Add these callbacks to your local tracks prior to publishing them     
 
-        localTracks.videoTrack.on("transceiver-created", AgoraE2EUtils.setupSender);      
-        localTracks.audioTrack.on("transceiver-created", AgoraE2EUtils.setupSender);         
-
+        localTracks.videoTrack.on("transceiver-updated", AgoraE2EUtils.setupSender);         
+        if (localTracks.videoTrack.getRTCRtpTransceiver()) {    
+            AgoraE2EUtils.setupSender(localTracks.videoTrack.getRTCRtpTransceiver());     
+        }    
+        
+        localTracks.audioTrack.on("transceiver-updated", AgoraE2EUtils.setupSender);           
+        if (localTracks.audioTrack.getRTCRtpTransceiver()) {     
+            AgoraE2EUtils.setupSender(localTracks.audioTrack.getRTCRtpTransceiver());      
+        }      
+ 
 #### Decrypt inbound streams 
 Add these callbacks to remote tracks before playing them      
 
-        user.videoTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);     
-        user.audioTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);     
+        user.audioTrack.on("transceiver-updated", AgoraE2EUtils.setupReceiver);    
+        if (user.audioTrack.getRTCRtpTransceiver()) {      
+                AgoraE2EUtils.setupReceiver(user.audioTrack.getRTCRtpTransceiver());      
+        }      
+
+        user.videoTrack.on("transceiver-updated", AgoraE2EUtils.setupReceiver);
+        if (user.videoTrack.getRTCRtpTransceiver()) {
+        AgoraE2EUtils.setupReceiver(user.videoTrack.getRTCRtpTransceiver());
+        }        
 
 #### Send some custom data  
 This will be appended to next outbound video frame and received by all subscribers

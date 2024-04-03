@@ -91,18 +91,26 @@ async function join() {
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null)
   if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack( {encoderConfig: { bitrate:128, stereo:true}});
   }
   if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({cameraId: videoSelect.value, encoderConfig: '720p_1'});
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({cameraId: videoSelect.value, encoderConfig: '1080p_3'});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
   $("#local-player-name").text(`localVideo(${options.uid})`);
   $("#joined-setup").css("display", "flex");
 
-  localTracks.videoTrack.on("transceiver-created", AgoraE2EUtils.setupSender);
-  localTracks.audioTrack.on("transceiver-created", AgoraE2EUtils.setupSender);
+
+  localTracks.videoTrack.on("transceiver-updated", AgoraE2EUtils.setupSender);         
+  if (localTracks.videoTrack.getRTCRtpTransceiver()) {    
+      AgoraE2EUtils.setupSender(localTracks.videoTrack.getRTCRtpTransceiver());     
+  }    
+  
+  localTracks.audioTrack.on("transceiver-updated", AgoraE2EUtils.setupSender);           
+  if (localTracks.audioTrack.getRTCRtpTransceiver()) {     
+      AgoraE2EUtils.setupSender(localTracks.audioTrack.getRTCRtpTransceiver());      
+  }       
 
   await client.publish(Object.values(localTracks));
   console.log("publish success");
@@ -157,13 +165,20 @@ async function subscribe(user, mediaType) {
     'margin': '5px',
     'color': 'white',
     'font-size': '16pt'});
-    user.videoTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);
+
+    user.videoTrack.on("transceiver-updated", AgoraE2EUtils.setupReceiver);
+    if (user.videoTrack.getRTCRtpTransceiver()) {
+      AgoraE2EUtils.setupReceiver(user.videoTrack.getRTCRtpTransceiver());
+    }        
+
     user.videoTrack.play(`player-${uid}`);
     $("#remote-playerlist").find(".player").children().append(label);
-
   }
   if (mediaType === 'audio') {
-    user.audioTrack.on("transceiver-created", AgoraE2EUtils.setupReceiver);
+    user.audioTrack.on("transceiver-updated", AgoraE2EUtils.setupReceiver);    
+    if (user.audioTrack.getRTCRtpTransceiver()) {      
+      AgoraE2EUtils.setupReceiver(user.audioTrack.getRTCRtpTransceiver());      
+    }
     user.audioTrack.play();
   }
 }
